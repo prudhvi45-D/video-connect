@@ -4,6 +4,7 @@ import { Server } from 'http';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import connectToSocket from './controallers/socketmanger.js';
+import userRoutes from './routes/userroute.js';
 const app=express();
 app.get("/home",(req,res)=>{
     res.send("hello world");
@@ -15,7 +16,8 @@ app.set("port",(process.env.PORT || 8000));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-
+app.use("/api/v1/users",userRoutes);
+app.use("/api/v2/users",userRoutes);
 async function start() {
   try {
     // Connect to MongoDB

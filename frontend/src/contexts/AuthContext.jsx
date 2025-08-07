@@ -8,8 +8,9 @@ import server from "../environment";
 export const AuthContext = createContext({});
 
 const client = axios.create({
-    baseURL: `${server}/api/v1/users`
-})
+    baseURL: `http://localhost:8000/api/v1/users`
+});
+
 
 
 export const AuthProvider = ({ children }) => {
@@ -39,24 +40,34 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    const handleLogin = async (username, password) => {
-        try {
-            let request = await client.post("/login", {
-                username: username,
-                password: password
-            });
+   const handleLogin = async (username, password) => {
+    try {
+        let request = await client.post("/login", {
+            username,
+            password
+        });
 
-            console.log(username, password)
-            console.log(request.data)
+        console.log("Login response:", request.data);
 
-            if (request.status === httpStatus.OK) {
-                localStorage.setItem("token", request.data.token);
-                router("/home")
-            }
-        } catch (err) {
-            throw err;
+        if (request.status === httpStatus.OK && request.data?.token) {
+            localStorage.setItem("token", request.data.token);
+            router("/home");
+        } else {
+            console.warn("Login failed: No token received.");
+        }
+
+    } catch (err) {
+        if (err.response) {
+            console.error("Login failed:", err.response.data?.message || err.response.statusText);
+            alert(err.response.data?.message || "Login failed");
+        } else if (err.request) {
+            console.error("No response from server:", err.message);
+        } else {
+            console.error("Unexpected error:", err.message);
         }
     }
+};
+
 
     const getHistoryOfUser = async () => {
         try {
